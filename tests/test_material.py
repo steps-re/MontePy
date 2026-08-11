@@ -875,3 +875,22 @@ class TestDefaultLib:
 
     def test_dl_str(_, dl):
         str(dl)
+
+    def test_set_none_clears_existing(_, dl):
+        # setting an already-set default library to None should unset it,
+        # mirroring del dl[key], not raise a TypeError.
+        dl["nlib"] = "80c"
+        assert dl["nlib"] == Library("80c")
+        dl["nlib"] = None
+        assert dl["nlib"] is None
+        assert (
+            len(dl._parent()._tree["data"]) == 0
+        ), "library not removed from parent material after set to None"
+
+    def test_set_none_noop_when_unset(_, dl):
+        # setting a never-set default library to None should be a no-op,
+        # not raise an error.
+        assert dl["plib"] is None
+        dl["plib"] = None
+        assert dl["plib"] is None
+        assert len(dl._parent()._tree["data"]) == 0

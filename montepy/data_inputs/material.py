@@ -60,9 +60,15 @@ class _DefaultLibraries:
 
     def __setitem__(self, key, value):
         key = self._validate_key(key)
+        if value is None:
+            # Assigning None unsets/removes the default, mirroring __getitem__'s
+            # behavior of returning None for an unset key.
+            if key in self._libraries:
+                del self[key]
+            return
         if not isinstance(value, (Library, str)):
             raise TypeError(
-                f"Value must be a library or str. {value} of type: {type(value).__name__} given."
+                f"Value must be a library, str, or None. {value} of type: {type(value).__name__} given."
             )
         if isinstance(value, str):
             value = Library(value)
